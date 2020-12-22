@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    #showImgWare {
+      width: 500px;
+      height: 500px;
+      display: none;
+    }
+
+    img {
+      display: inline-block;
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+
+<body>
+
+  <form action="/add?_csrf=<%= csrf %>" method="POST" id="formSubmit" enctype="multipart/form-data">
+    <input type="hidden" name="_csrf" value="<%=csrf%>">
+    <label>
+      项目名字<input id="projectName" name="projectName" type="text">
+    </label>
+    <br>
+    <label>
+      项目地址<input id="projectUrl" name="projectUrl" type="text">
+    </label>
+    <br>
+    <label>
+      git地址<input id="gitUrl" name="gitUrl" type="text">
+    </label>
+    <br>
+    <label>
+      项目预览图<input id="projectImg" name="projectImg" type="file" accept="image/*" oninput="getFiles()">
+    </label>
+    <div id="showImgWare">
+      <img id="imgshow" src="" alt="" />
+    </div>
+    <br>
+    <br>
+    <label>
+      项目组成人员<input id="projectMembers" name="projectMembers" type="text">
+    </label>
+    <br>
+    <label>
+      备注<input id="projectRemarks" name="projectRemarks" type="text">
+    </label>
+    <br>
+    <label>
+      最后更新时间<input id="projectUpdateTime" name="projectUpdateTime" type="text">
+    </label>
+    <br>
+    <button id="sub_btn" type="button">提交</button>
+  </form>
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.js"></script>
+  <script>
+    $(() => {
+      console.log($('#sub_btn'))
+      $('#formSubmit').on('submit', function (event) {
+        // console.log('event', event)
+        exeSubmit()
+        event.preventDefault() //阻止form表单默认提交
+        // return false
+      })
+      $('#sub_btn').click(() => {
+        console.log($('#formSubmit').serialize())
+        $.ajax({
+          type: "post",
+          url: "/add",
+          data: $('#formSubmit').serialize(),
+          success: (res) => {
+            console.log(res)
+            if (res.code == 200) {
+              alert(res.msg);
+            }
+          },
+          error: (err) => {
+            console.log(err)
+          }
+        })
+      })
+      exeSubmit = () => {
+        $.ajax({
+          type: "post",
+          url: "/add",
+          data: $('#formSubmit').serialize(),
+        }).success(function (message) {
+          console.log(message)
+        }).error(function (err) {
+          console.log(err)
+        })
+      }
+
+      function saveData() {
+        let projectName = document.getElementById('projectName').value
+        let projectUrl = document.getElementById('projectUrl').value
+        let gitUrl = document.getElementById('gitUrl').value
+        let projectImg = document.getElementById('projectImg').value
+        let projectMembers = document.getElementById('projectMembers').value
+        let projectRemarks = document.getElementById('projectRemarks').value
+        let projectUpdateTime = document.getElementById('projectUpdateTime').value
+        let obj = {
+          projectName,
+          projectUrl,
+          gitUrl,
+          projectImg,
+          projectMembers,
+          projectRemarks,
+          projectUpdateTime
+        }
+        console.log('obj', obj)
+        // console.log('formSubmit', $('#formSubmit').serialize())
+        // $.ajax({
+        //   type: "post",
+        //   url: "/api/user/register",
+        //   data: $('#formSubmit').serialize(),
+        // }).success(function (message) {
+        //   console.log(message)
+        // }).fail(function (err) {
+        //   console.log(err)
+        // })
+      }
+
+      function getFiles() {
+        let inputFileEle = document.getElementById('projectImg')
+        let imgEle = document.getElementById('imgshow')
+        let imgWare = document.getElementById('showImgWare')
+        let files = inputFileEle.files[0];
+        console.log('1234', inputFileEle, files)
+        //创建用来读取此文件的对象
+        var reader = new FileReader();
+        //使用该对象读取file文件
+        reader.readAsDataURL(files);
+        //读取文件成功后执行的方法函数
+        reader.onload = function (e) {
+          imgWare.style.display = "block";
+          imgEle.src = e.target.result;
+        }
+      }
+    })
+  </script>
+</body>
+
+</html>
